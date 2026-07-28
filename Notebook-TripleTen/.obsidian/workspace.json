@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "5fee0c2c5e5349df",
+        "id": "ddaa367c6b3ad76a",
         "type": "tabs",
         "children": [
           {
-            "id": "c14ff3d990131a7b",
+            "id": "6f215f16da1f9b3a",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Arsenal_Tecnico/Operaciones/DAX_Avanzado_S12.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "Nueva pestaña"
+              "title": "DAX_Avanzado_S12"
             }
           }
         ]
@@ -173,7 +177,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -187,44 +192,44 @@
       "copilot:Open Copilot Chat": false
     }
   },
-  "active": "7677d3759833f7f7",
+  "active": "6f215f16da1f9b3a",
   "lastOpenFiles": [
+    "copilot/copilot-conversations/Solicitud_de_contexto@20260722_025822.md",
+    "Arsenal_Tecnico/Operaciones/DAX_Avanzado_S12.md",
+    "copilot/copilot-conversations/Pandas_Data_Filtering_Analysis@20260722_020952.md",
+    "copilot/copilot-conversations/Mejores_gráficos_para_hoteles@20260716_180103.md",
+    "copilot/copilot-conversations/Diferencia_entre_plot_y_scatter@20260717_194702.md",
+    "copilot/copilot-conversations/Consulta_sobre_proyecto_Kaggle@20260715_164555.md",
+    "copilot/copilot-conversations/Cohortes_en_Pandas_y_SQL@20260725_010009.md",
+    "copilot/copilot-conversations/Análisis_de_cohortes_Pandas_SQL@20260725_012148.md",
+    "Arsenal_Tecnico/Operaciones/Joins_y_Combinacion.md",
+    "Arsenal_Tecnico/Operaciones/Funnel_y_Cohortes_S12.md",
+    "Arsenal_Tecnico/Herramientas/Sin confirmar 841520.crdownload",
+    "Arsenal_Tecnico/Operaciones/Sin confirmar 4840.crdownload",
+    "Arsenal_Tecnico/Operaciones/SQL_Financiero_y_Metricas.md",
+    "Arsenal_Tecnico/Operaciones/Analisis_Estadistico.md",
+    "Arsenal_Tecnico/Operaciones/Transformacion_y_Feature_Engineering.md",
+    "Arsenal_Tecnico/Operaciones/Visualizacion.md",
+    "Arsenal_Tecnico/Operaciones/Agregacion_y_Reportes.md",
+    "Arsenal_Tecnico/Herramientas/Matplotlib_Seaborn.md",
+    "Arsenal_Tecnico/Herramientas/Numpy.md",
+    "Arsenal_Tecnico/Operaciones/Carga_y_Exploracion.md",
+    "Arsenal_Tecnico/Operaciones/KPIs_Financieros_Python.md",
+    "Arsenal_Tecnico/Operaciones/Limpieza_y_Normalizacion.md",
     "copilot/copilot-conversations/Pasos_iniciales_proyecto_Kaggle@20260714_191220.md",
     "copilot/copilot-conversations/Pasos_iniciales_análisis_datos@20260711_164420.md",
     "copilot/copilot-conversations/Recuerdos_compartidos@20260707_133636.md",
     "copilot/copilot-conversations/Proyecto_12_en_Power_BI@20260707_162208.md",
     "copilot/copilot-conversations/Planificación_de_proyecto_Tripleten@20260630_064605.md",
     "copilot/copilot-conversations/Contexto_de_planificación_de_proyecto@20260630_135201.md",
-    "copilot/copilot-conversations/Retomar_planificación_de_proyecto@20260706_182948.md",
-    "Arsenal_Tecnico/Operaciones/Analisis_Estadistico.md",
-    "Arsenal_Tecnico/Herramientas/Git_GitHub.md",
-    "Arsenal_Tecnico/Operaciones/Visualizacion.md",
-    "Arsenal_Tecnico/Herramientas/Matplotlib_Seaborn.md",
-    "copilot/copilot-conversations/Metodología_de_estrella_explicada@20260624_205940.md",
-    "Arsenal_Tecnico/Operaciones/Modelado_Star_Schema.md",
-    "Arsenal_Tecnico/Indice_Maestro.md",
-    "Arsenal_Tecnico/Herramientas/Jupyter_VSCode.md",
-    "Arsenal_Tecnico/Herramientas/Power_BI.md",
     "Arsenal_Tecnico/Herramientas/Sin confirmar 100632.crdownload",
-    "Power_BI_S10.md",
-    "Arsenal_Tecnico/Herramientas/Modelado_Analitico_Sheets.md",
     "copilot/copilot-custom-prompts/Sin confirmar 793057.crdownload",
     "copilot/copilot-custom-prompts/Sin confirmar 142240.crdownload",
     "copilot/copilot-custom-prompts/Sin confirmar 71160.crdownload",
     "copilot/copilot-custom-prompts/Sin confirmar 481112.crdownload",
-    "copilot/copilot-custom-prompts/Plantilla_Herramienta.md",
-    "copilot/copilot-custom-prompts/Plantilla_Herramienta (1).md",
     "copilot/copilot-custom-prompts/Sin confirmar 864287.crdownload",
     "copilot/copilot-custom-prompts/Sin confirmar 194685.crdownload",
-    "copilot/copilot-custom-prompts/Plantilla_Operacion.md",
-    "Herramienta_1.md",
-    "copilot/copilot-conversations/Problema_visualización_plantillas_notas@20260623_183714.md",
-    "Herramienta_2.md",
-    "Nombre_Operacion_Anterior.md",
-    "Nombre_Nota.md",
     "Arsenal_Tecnico/Herramientas",
-    "Arsenal_Tecnico/Operaciones",
-    "Arsenal_Tecnico",
     "Sin título.canvas",
     "Pasted image 20260620005705.png"
   ]

@@ -18,6 +18,7 @@ Operaciones para analizar el comportamiento de usuarios en un funnel de compra y
 | Funnel: tasa de conversión con LAG() | [[#funnel-conversion]] |
 | Cohortes: retención semanal con LEFT JOIN + CASE WHEN | [[#cohortes-sql]] |
 | Cohortes: transformación y heatmap en Python | [[#cohortes-python]] |
+| Cohortes: patrón base con Window Function (práctica) | [[#cohortes-base]] |
 
 ---
 
@@ -334,3 +335,110 @@ funnel_estricto = pd.read_sql(query_funnel_intersect, con=engine)
 > El patrón con `IN` siempre da números menores o iguales al patrón de `GROUP BY`, porque filtra usuarios que saltaron etapas. Elige según lo que quiera medir el negocio.
 
 **Contexto real:** S12 — Patrón alternativo para análisis de funnel estricto donde cada etapa es prerequisito de la siguiente.
+
+----
+### 🐍 Cohortes: Cálculo 100% en Pandas {#cohortes-pandas}
+
+**Cuándo:** Cuando el dataset es pequeño y prefieres realizar todo el procesamiento en memoria sin depender de una query SQL compleja.
+
+```python
+# 1. Asegurar formato datetime
+df['fecha_registro'] = pd.to_datetime(df['fecha_registro'])
+df['fecha_actividad'] = pd.to_datetime(df['fecha_actividad'])
+
+# 2. Truncar a mes (Period)
+df['mes_registro'] = df['fecha_registro'].dt.to_period('M')
+df['mes_actividad'] = df['fecha_actividad'].dt.to_period('M')
+
+# 3. Identificar la cohorte (mes de la primera actividad)
+df['mes_cohorte'] = df.groupby('id_usuario')['mes_registro'].transform('min')
+
+# 4. Calcular el índice de periodo (meses transcurridos)
+df['periodo'] = (df['mes_actividad'] - df['mes_cohorte']).apply(lambda x: x.n)
+
+# 5. Agrupar y pivotar para obtener la matriz de retención
+cohortes = df.groupby(['mes_cohorte', 'periodo'])['id_usuario'].nunique().reset_index()
+matriz_cohortes = cohortes.pivot(index='mes_cohorte', columns='periodo', values='id_usuario')
+
+# 6. Calcular porcentajes (dividir por la primera columna)
+retention_matrix = matriz_cohortes.divide(matriz_cohortes.iloc[:, 0], axis=0)
+
+# 7. Visualizar
+sns.heatmap(retention_matrix, annot=True, fmt='.1%', cmap='YlGnBu')
+```
+
+**Puntos clave:**
+
+- `.transform('min')`: Es la forma más eficiente de asignar la fecha de registro a cada fila del usuario sin colapsar el DataFrame.
+- `.apply(lambda x: x.n)`: Extrae el número entero de la diferencia de periodos.
+- `.divide(..., axis=0)`: Divide cada fila por su valor inicial (la cohorte), convirtiendo los conteos en tasas de retención.
+
+---
+
+## 🔁 Cohortes — Patrón Base de Práctica: SQL con Window Function + Pandas paso a paso {#cohortes-base}
+
+**Cuándo:** Patrón mínimo y didáctico para reforzar la lógica de cohortes desde cero, sin depender de columnas ya calculadas (`dias_despues_registro`, `activo`) como en los patrones S12 de arriba. Útil para practicar en plataformas como DataLemur/StrataScratch o para explicarle el concepto a alguien más.
+
+### Versión SQL (CTEs + Window Function)
+
+```sql
+with cohorte_base as (
+    select
+        usuario_id,
+        date_trunc('month', fecha) as mes_actividad,
+        min(date_trunc('month', fecha)) over (partition by usuario_id) as mes_cohorte
+    from eventos
+),
+num_periodo as (
+    select
+        usuario_id,
+        mes_cohorte,
+        (date_part('year', mes_actividad) - date_part('year', mes_cohorte)) * 12 +
+        (date_part('month', mes_actividad) - date_part('month', mes_cohorte)) as numero_periodo
+    from cohorte_base
+)
+select
+    mes_cohorte,
+    numero_periodo,
+    count(distinct usuario_id) as usuarios_unicos
+from num_periodo
+group by mes_cohorte, numero_periodo
+order by mes_cohorte, numero_periodo;
+```
+
+**Puntos clave:**
+- `MIN(...) OVER (PARTITION BY usuario_id)` reemplaza el patrón "CTE + LEFT JOIN" del S4 — calcula el mínimo sin colapsar filas, ahorrando un CTE completo.
+- La fórmula `(año_actividad - año_cohorte) * 12 + (mes_actividad - mes_cohorte)` es necesaria porque restar fechas da diferencia en días, no en meses — hay que armar la conversión a mano con `DATE_PART`.
+
+### Versión Pandas (mismo resultado, sin SQL)
+
+```python
+import pandas as pd
+
+# Paso 1: mes de cada evento individual
+eventos['mes_actividad'] = eventos['fecha'].dt.to_period('M')
+
+# Paso 2: mes de cohorte (primera actividad) de cada usuario
+eventos['mes_cohorte'] = eventos.groupby('usuario_id')['mes_actividad'].transform('min')
+
+# Paso 3: número de periodo (meses de diferencia)
+eventos['numero_periodo'] = eventos['mes_actividad'] - eventos['mes_cohorte']
+eventos['numero_periodo'] = eventos['numero_periodo'].apply(lambda x: x.n)
+
+# Paso 4: agrupar y contar usuarios únicos por cohorte y periodo
+cohortes = eventos.groupby(['mes_cohorte', 'numero_periodo'])['usuario_id'].nunique()
+cohortes = cohortes.reset_index()
+```
+
+### Tabla de equivalencias SQL ↔ Pandas
+
+| Objetivo | SQL | Pandas |
+|---|---|---|
+| Truncar fecha a mes | `date_trunc('month', fecha)` | `.dt.to_period('M')` |
+| Mínimo por grupo sin colapsar filas | `MIN(...) OVER (PARTITION BY usuario_id)` | `.groupby('usuario_id')[...].transform('min')` |
+| Diferencia en meses | `(año_act - año_coh)*12 + (mes_act - mes_coh)` | Resta directa de `Period` + `.apply(lambda x: x.n)` |
+| Agrupar y contar únicos | `GROUP BY ... ; COUNT(DISTINCT usuario_id)` | `.groupby([...])[...].nunique()` |
+
+> [!NOTE] Diferencia con el patrón `cohortes-pandas` de arriba
+> Esta versión es el "esqueleto" mínimo (sin pivot, sin heatmap, sin porcentajes) — pensado para practicar la lógica base. El patrón `cohortes-pandas` de la sección anterior ya incluye el pivot (`.pivot()`) y el cálculo de retención en % (`.divide()`), listo para producción/heatmap.
+

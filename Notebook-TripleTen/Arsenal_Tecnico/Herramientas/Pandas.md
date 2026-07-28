@@ -48,6 +48,7 @@ Referencia rápida de todo lo que puedes hacer con Pandas en el contexto del boo
 | Agrupar y agregar | `.groupby().sum()` `.groupby().mean()` | [[Agregacion_y_Reportes#kpis-sheets]] |
 | Conteo por categoría | `.value_counts()` `.value_counts(normalize=True)` | [[Carga_y_Exploracion#auditoria-basica]] |
 | Estadísticos descriptivos | `.describe()` | [[Carga_y_Exploracion#auditoria-basica]] |
+| Cálculo de cohortes desde cero (patrón base) | `.transform('min')` + resta de `Period` + `.groupby().nunique()` | [[Funnel_y_Cohortes_S12#cohortes-base]] |
 
 ### 🧪 Análisis Estadístico
 | Qué hace | Función clave | Nota |
