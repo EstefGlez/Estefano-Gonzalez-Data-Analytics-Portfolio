@@ -19,6 +19,7 @@ Operaciones para analizar el comportamiento de usuarios en un funnel de compra y
 | Cohortes: retención semanal con LEFT JOIN + CASE WHEN | [[#cohortes-sql]] |
 | Cohortes: transformación y heatmap en Python | [[#cohortes-python]] |
 | Cohortes: patrón base con Window Function (práctica) | [[#cohortes-base]] |
+| Funnel dentro de cohortes: CASE WHEN + etapa máxima (práctica) | [[#funnel-cohortes]] |
 
 ---
 
@@ -441,4 +442,135 @@ cohortes = cohortes.reset_index()
 
 > [!NOTE] Diferencia con el patrón `cohortes-pandas` de arriba
 > Esta versión es el "esqueleto" mínimo (sin pivot, sin heatmap, sin porcentajes) — pensado para practicar la lógica base. El patrón `cohortes-pandas` de la sección anterior ya incluye el pivot (`.pivot()`) y el cálculo de retención en % (`.divide()`), listo para producción/heatmap.
+
+---
+
+## 🎯 Funnel dentro de Cohortes — CASE WHEN + Etapa Máxima {#funnel-cohortes}
+
+**Cuándo:** Para responder la pregunta combinada "¿hasta qué etapa del funnel llegó cada cohorte, en cada periodo de su vida?" — cruza la lógica de `#cohortes-base` (mes_cohorte + numero_periodo) con la lógica de `#funnel-conteo` (clasificar eventos en etapas), usando `CASE WHEN` para asignar la etapa y `MAX` para quedarte con la etapa más avanzada que alcanzó cada usuario en ese periodo.
+
+> [!IMPORTANT] Decisión de diseño: etapa máxima, no cada evento por separado
+> Un usuario genera varios eventos (`select_item`, `add_to_cart`, `purchase`...) dentro del mismo `numero_periodo`. Si cuentas cada evento como una etapa alcanzada, un mismo usuario aparece en 6 etapas y el funnel deja de tener sentido. La solución (igual que en `#funnel-intersect`) es quedarte con la **etapa más alta** que alcanzó ese usuario en ese periodo, y luego contar de forma acumulada (`>= N`, mismo patrón que `#cohortes-acumuladas`).
+
+### Versión SQL (CTEs + CASE WHEN + MAX)
+
+```sql
+with cohorte_base as (
+    select
+        usuario_id,
+        nombre_evento,
+        date_trunc('month', fecha) as mes_actividad,
+        min(date_trunc('month', fecha)) over (partition by usuario_id) as mes_cohorte
+    from eventos
+),
+num_periodo as (
+    select
+        usuario_id,
+        nombre_evento,
+        mes_cohorte,
+        (date_part('year', mes_actividad) - date_part('year', mes_cohorte)) * 12 +
+        (date_part('month', mes_actividad) - date_part('month', mes_cohorte)) as numero_periodo
+    from cohorte_base
+),
+etapa_por_evento as (
+    select
+        usuario_id,
+        mes_cohorte,
+        numero_periodo,
+        case nombre_evento
+            when 'first_visit'      then 1
+            when 'select_item'      then 2
+            when 'add_to_cart'      then 3
+            when 'begin_checkout'   then 4
+            when 'add_payment_info' then 5
+            when 'purchase'         then 6
+            else 0
+        end as orden_etapa
+    from num_periodo
+),
+etapa_maxima as (
+    -- Colapsa: un usuario, un periodo, su etapa MÁS avanzada
+    select
+        usuario_id,
+        mes_cohorte,
+        numero_periodo,
+        max(orden_etapa) as etapa_maxima_alcanzada
+    from etapa_por_evento
+    group by usuario_id, mes_cohorte, numero_periodo
+)
+select
+    mes_cohorte,
+    numero_periodo,
+    count(distinct case when etapa_maxima_alcanzada >= 1 then usuario_id end) as llego_visita,
+    count(distinct case when etapa_maxima_alcanzada >= 3 then usuario_id end) as llego_carrito,
+    count(distinct case when etapa_maxima_alcanzada >= 6 then usuario_id end) as llego_compra
+from etapa_maxima
+group by mes_cohorte, numero_periodo
+order by mes_cohorte, numero_periodo;
+```
+
+### Versión Pandas (mismo resultado, sin SQL)
+
+```python
+import pandas as pd
+
+# Pasos 1-3: idénticos al patrón base de #cohortes-base
+eventos['mes_actividad'] = eventos['fecha'].dt.to_period('M')
+eventos['mes_cohorte'] = eventos.groupby('usuario_id')['mes_actividad'].transform('min')
+eventos['numero_periodo'] = (eventos['mes_actividad'] - eventos['mes_cohorte']).apply(lambda x: x.n)
+
+# Paso 4: CASE WHEN -> equivalente en pandas es .map() con un diccionario
+orden_funnel = {
+    'first_visit': 1,
+    'select_item': 2,
+    'add_to_cart': 3,
+    'begin_checkout': 4,
+    'add_payment_info': 5,
+    'purchase': 6
+}
+eventos['orden_etapa'] = eventos['nombre_evento'].map(orden_funnel).fillna(0)
+
+# Paso 5: MAX(...) OVER (PARTITION BY usuario, cohorte, periodo) -> .transform('max')
+# (transform NO colapsa: cada evento se queda con la etapa máxima de SU usuario+periodo)
+eventos['etapa_maxima'] = eventos.groupby(
+    ['usuario_id', 'mes_cohorte', 'numero_periodo']
+)['orden_etapa'].transform('max')
+
+# Paso 6: quedarnos con 1 fila por usuario+cohorte+periodo (el GROUP BY del CTE etapa_maxima)
+usuarios_etapa = eventos.drop_duplicates(subset=['usuario_id', 'mes_cohorte', 'numero_periodo'])
+
+# Paso 7: contar usuarios que llegaron a cada etapa, de forma acumulada (>= N, igual que el CASE WHEN final en SQL)
+def usuarios_que_llegaron_a(etapa_minima):
+    mascara = usuarios_etapa['etapa_maxima'] >= etapa_minima
+    return usuarios_etapa[mascara].groupby(['mes_cohorte', 'numero_periodo'])['usuario_id'].nunique()
+
+funnel_cohortes = pd.DataFrame({
+    'llego_visita':  usuarios_que_llegaron_a(1),
+    'llego_carrito': usuarios_que_llegaron_a(3),
+    'llego_compra':  usuarios_que_llegaron_a(6),
+}).fillna(0).astype(int).reset_index()
+```
+
+**Puntos clave:**
+- `CASE nombre_evento WHEN ... THEN ...` → equivalente pandas es `.map(diccionario)`, más corto que escribir un `CASE WHEN` fila por fila con `np.select` o `.apply()`. Úsalo cuando la relación es "un valor → un número/etiqueta" simple.
+- `MAX(...) OVER (PARTITION BY usuario_id, mes_cohorte, numero_periodo)` → `.groupby([...]).transform('max')`. Es el mismo patrón que ya usaste para `mes_cohorte`, solo que ahora particionas por 3 columnas en vez de 1.
+- `count(distinct case when etapa_maxima_alcanzada >= N then usuario_id end)` (SQL) ↔ filtrar con máscara booleana + `.nunique()` (pandas) — el mismo patrón que ya practicaste con `.isin()` + filtrado antes de agrupar.
+- El `.drop_duplicates()` en pandas hace el trabajo del `GROUP BY` intermedio del CTE `etapa_maxima` en SQL: colapsa de "un evento por fila" a "un usuario-cohorte-periodo por fila", antes de contar.
+
+### Tabla de equivalencias SQL ↔ Pandas (de esta sección)
+
+| Objetivo | SQL | Pandas |
+|---|---|---|
+| Clasificar cada evento en una etapa | `CASE nombre_evento WHEN ... THEN ...` | `.map({dict})` |
+| Etapa máxima por usuario y periodo (sin colapsar) | `MAX(orden_etapa) OVER (PARTITION BY usuario_id, mes_cohorte, numero_periodo)` | `.groupby([...])['orden_etapa'].transform('max')` |
+| Colapsar a 1 fila por usuario-cohorte-periodo | `GROUP BY usuario_id, mes_cohorte, numero_periodo` | `.drop_duplicates(subset=[...])` |
+| Conteo acumulado por etapa (`>= N`) | `COUNT(DISTINCT CASE WHEN etapa >= N THEN usuario_id END)` | máscara booleana (`col >= N`) + `.groupby([...]).nunique()` |
+
+> [!NOTE] Por qué `.map()` y no `np.select()` aquí
+> `np.select()` es el equivalente más literal de un `CASE WHEN` con condiciones complejas (rangos, múltiples columnas). Pero cuando la condición es solo "este valor de texto → este número", como aquí, `.map()` con un diccionario es más simple y más rápido. Si el `CASE WHEN` tuviera rangos (como `dias_despues_registro BETWEEN 7 AND 13` en `#cohortes-sql`), ahí sí conviene `np.select()` o `pd.cut()`.
+
+> [!WARNING] `.fillna(0)` en el `.map()`
+> Si `nombre_evento` tiene un valor que no está en el diccionario `orden_funnel` (por ejemplo, un evento de ruido que no filtraste), `.map()` devuelve `NaN` para esas filas. El `.fillna(0)` es el equivalente al `ELSE 0` implícito del `CASE` en SQL — sin él, el `.transform('max')` podría arrastrar `NaN` y romper la comparación `>= N` más adelante.
+
+**Contexto real:** S12 — Extensión práctica que cruza el patrón base de cohortes (`#cohortes-base`) con la clasificación de funnel (`#funnel-conteo` y `#funnel-intersect`), para responder: "de los usuarios que se registraron en enero, ¿qué % llegó a compra en su primer mes vs. en su tercer mes de vida?" — una pregunta muy común en analítica de producto y en preguntas de DataLemur/StrataScratch tipo "funnel by cohort".
 

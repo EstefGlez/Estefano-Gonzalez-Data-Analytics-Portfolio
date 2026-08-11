@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "ddaa367c6b3ad76a",
+        "id": "73b2fa8a2eafcce7",
         "type": "tabs",
         "children": [
           {
-            "id": "6f215f16da1f9b3a",
+            "id": "6d60828bb622e6f6",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Arsenal_Tecnico/Operaciones/DAX_Avanzado_S12.md",
+                "file": "Arsenal_Tecnico/Operaciones/Funnel_y_Cohortes_S12.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DAX_Avanzado_S12"
+              "title": "Funnel_y_Cohortes_S12"
             }
           }
         ]
@@ -41,7 +41,9 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
               },
               "icon": "lucide-folder-closed",
               "title": "Explorador de archivos"
@@ -192,10 +194,14 @@
       "copilot:Open Copilot Chat": false
     }
   },
-  "active": "6f215f16da1f9b3a",
+  "active": "6d60828bb622e6f6",
   "lastOpenFiles": [
-    "copilot/copilot-conversations/Solicitud_de_contexto@20260722_025822.md",
+    "copilot/copilot-conversations/Diferencia_Z-test_y_Chi-cuadrado@20260805_152547.md",
+    "Arsenal_Tecnico/Operaciones/Funnel_y_Cohortes_S12.md",
+    "copilot/copilot-conversations/Análisis_dataset_E-commerce_Kaggle@20260727_204438.md",
+    "Arsenal_Tecnico/Operaciones/Analisis_Estadistico.md",
     "Arsenal_Tecnico/Operaciones/DAX_Avanzado_S12.md",
+    "copilot/copilot-conversations/Solicitud_de_contexto@20260722_025822.md",
     "copilot/copilot-conversations/Pandas_Data_Filtering_Analysis@20260722_020952.md",
     "copilot/copilot-conversations/Mejores_gráficos_para_hoteles@20260716_180103.md",
     "copilot/copilot-conversations/Diferencia_entre_plot_y_scatter@20260717_194702.md",
@@ -203,11 +209,9 @@
     "copilot/copilot-conversations/Cohortes_en_Pandas_y_SQL@20260725_010009.md",
     "copilot/copilot-conversations/Análisis_de_cohortes_Pandas_SQL@20260725_012148.md",
     "Arsenal_Tecnico/Operaciones/Joins_y_Combinacion.md",
-    "Arsenal_Tecnico/Operaciones/Funnel_y_Cohortes_S12.md",
     "Arsenal_Tecnico/Herramientas/Sin confirmar 841520.crdownload",
     "Arsenal_Tecnico/Operaciones/Sin confirmar 4840.crdownload",
     "Arsenal_Tecnico/Operaciones/SQL_Financiero_y_Metricas.md",
-    "Arsenal_Tecnico/Operaciones/Analisis_Estadistico.md",
     "Arsenal_Tecnico/Operaciones/Transformacion_y_Feature_Engineering.md",
     "Arsenal_Tecnico/Operaciones/Visualizacion.md",
     "Arsenal_Tecnico/Operaciones/Agregacion_y_Reportes.md",
@@ -220,8 +224,6 @@
     "copilot/copilot-conversations/Pasos_iniciales_análisis_datos@20260711_164420.md",
     "copilot/copilot-conversations/Recuerdos_compartidos@20260707_133636.md",
     "copilot/copilot-conversations/Proyecto_12_en_Power_BI@20260707_162208.md",
-    "copilot/copilot-conversations/Planificación_de_proyecto_Tripleten@20260630_064605.md",
-    "copilot/copilot-conversations/Contexto_de_planificación_de_proyecto@20260630_135201.md",
     "Arsenal_Tecnico/Herramientas/Sin confirmar 100632.crdownload",
     "copilot/copilot-custom-prompts/Sin confirmar 793057.crdownload",
     "copilot/copilot-custom-prompts/Sin confirmar 142240.crdownload",
