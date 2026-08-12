@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "73b2fa8a2eafcce7",
+        "id": "808c1a0d5c7b1c07",
         "type": "tabs",
         "children": [
           {
-            "id": "6d60828bb622e6f6",
+            "id": "6b59304a925892be",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Arsenal_Tecnico/Operaciones/Funnel_y_Cohortes_S12.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "Funnel_y_Cohortes_S12"
+              "title": "Nueva pestaña"
             }
           }
         ]
@@ -194,10 +190,11 @@
       "copilot:Open Copilot Chat": false
     }
   },
-  "active": "6d60828bb622e6f6",
+  "active": "6b59304a925892be",
   "lastOpenFiles": [
-    "copilot/copilot-conversations/Diferencia_Z-test_y_Chi-cuadrado@20260805_152547.md",
+    "Arsenal_Tecnico/Operaciones/Groupby_Agg_Transform.md",
     "Arsenal_Tecnico/Operaciones/Funnel_y_Cohortes_S12.md",
+    "copilot/copilot-conversations/Diferencia_Z-test_y_Chi-cuadrado@20260805_152547.md",
     "copilot/copilot-conversations/Análisis_dataset_E-commerce_Kaggle@20260727_204438.md",
     "Arsenal_Tecnico/Operaciones/Analisis_Estadistico.md",
     "Arsenal_Tecnico/Operaciones/DAX_Avanzado_S12.md",
@@ -223,7 +220,6 @@
     "copilot/copilot-conversations/Pasos_iniciales_proyecto_Kaggle@20260714_191220.md",
     "copilot/copilot-conversations/Pasos_iniciales_análisis_datos@20260711_164420.md",
     "copilot/copilot-conversations/Recuerdos_compartidos@20260707_133636.md",
-    "copilot/copilot-conversations/Proyecto_12_en_Power_BI@20260707_162208.md",
     "Arsenal_Tecnico/Herramientas/Sin confirmar 100632.crdownload",
     "copilot/copilot-custom-prompts/Sin confirmar 793057.crdownload",
     "copilot/copilot-custom-prompts/Sin confirmar 142240.crdownload",

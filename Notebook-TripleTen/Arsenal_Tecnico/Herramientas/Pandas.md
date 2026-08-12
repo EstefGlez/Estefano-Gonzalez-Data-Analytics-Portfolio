@@ -49,6 +49,11 @@ Referencia rápida de todo lo que puedes hacer con Pandas en el contexto del boo
 | Conteo por categoría | `.value_counts()` `.value_counts(normalize=True)` | [[Carga_y_Exploracion#auditoria-basica]] |
 | Estadísticos descriptivos | `.describe()` | [[Carga_y_Exploracion#auditoria-basica]] |
 | Cálculo de cohortes desde cero (patrón base) | `.transform('min')` + resta de `Period` + `.groupby().nunique()` | [[Funnel_y_Cohortes_S12#cohortes-base]] |
+| `.agg()` vs `.transform()` — colapsa vs. no colapsa | `.groupby().agg()` / `.groupby().transform()` | [[Groupby_Agg_Transform#agg-vs-transform]] |
+| Top-N por grupo | `.transform('rank')` + filtro `<= N` | [[Groupby_Agg_Transform#transform-rank]] |
+| Fórmulas custom dentro de groupby | `.agg(lambda x: ...)` / `.transform(lambda x: ...)` | [[Groupby_Agg_Transform#lambda]] |
+| Filtrar antes de agrupar | `.isin()` + `.where()` / máscara booleana | [[Groupby_Agg_Transform#isin-where]] |
+| Tabla de contingencia / tabla dinámica | `pd.crosstab()` / `.pivot_table()` | [[Groupby_Agg_Transform#crosstab-pivot]] |
 
 ### 🧪 Análisis Estadístico
 | Qué hace | Función clave | Nota |
