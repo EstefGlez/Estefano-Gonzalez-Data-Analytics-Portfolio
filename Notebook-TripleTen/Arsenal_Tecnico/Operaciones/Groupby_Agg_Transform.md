@@ -19,6 +19,7 @@ Operaciones de agrupación en Pandas practicadas con el dataset **Superstore Sal
 | `.transform()` para comparar fila vs. grupo | [[#transform-diferencia]] |
 | `.transform('rank')` — top-N por grupo | [[#transform-rank]] |
 | Funciones lambda en `.agg()` / `.transform()` | [[#lambda]] |
+| Negación `~.isin()` y combinación con `.notna()` | [[#negacion-isin]] |
 | `.isin()` + `.where()` vs. filtro con máscara | [[#isin-where]] |
 | `pd.crosstab()` y `pivot_table()` | [[#crosstab-pivot]] |
 
@@ -170,6 +171,37 @@ df['z_score'] = df.groupby('Category')['Sales'].transform(
 **Regla mental:** si la operación es una sola palabra que ya existe (`'mean'`, `'sum'`, `'rank'`) → usarla directo como string, es más rápido. Si hay que combinar varias operaciones en una fórmula → lambda.
 
 **Contexto real:** Kaggle Superstore — practicado como extensión de las Tareas 3 y 4 (diferencia vs. promedio y ranking), reemplazando el string por una fórmula custom.
+
+---
+
+## 🚫 Negación con `~.isin()` y Combinación con `.notna()` {#negacion-isin}
+
+**Cuándo:** Para el caso inverso de `.isin()` — cuando se necesita **excluir** un subconjunto de categorías en vez de incluirlo, antes de un `groupby`.
+
+```python
+# ~ niega la máscara booleana devuelta por .isin() -> "todo EXCEPTO estos"
+mascara = ~df["director"].isin(["director 1", "director 2", "director 3"])
+resultado = df[mascara].groupby("director")["otra_columna"].mean()
+```
+
+**Puntos clave:**
+- `~` es el operador de negación booleana y solo se aplica al **resultado** de `.isin()` (una Serie booleana) — nunca dentro de la lista. `df["col"].isin(~["a", "b"])` lanza `TypeError`, porque `~` no es válido sobre una lista de strings.
+- `.isin([...])` sin negar ya excluye automáticamente los `NaN` de la columna filtrada (NaN nunca es igual a nada, ni a otro NaN). Al negar con `~.isin([...])`, ese comportamiento se invierte: los `NaN` de esa columna **sí pasan** el filtro, porque no están en la lista de exclusión.
+
+**Combinación con `.notna()` para excluir también los NaN explícitamente:**
+
+```python
+mascara = ~df["director"].isin(["director 1", "director 2", "director 3"]) & df["director"].notna()
+resultado = df[mascara].groupby("director")["otra_columna"].mean()
+```
+
+> [!NOTE] `.notna()` de una columna vs. `.dropna()` del DataFrame
+> `df["columna"].notna()` sólo filtra por esa columna específica. `df.dropna()` sin `subset` es más agresivo: elimina cualquier fila con `NaN` en **cualquier** columna del DataFrame, no solo en la que interesa. Para que ambos sean equivalentes: `df.dropna(subset=["columna"])`.
+
+> [!TIP] En la práctica, el `.notna()` explícito casi nunca hace falta aquí
+> Tanto `.isin()` (por el lado negado) como `groupby()` (que descarta por default el grupo `NaN` de la columna de agrupación) hacen que el resultado final de `groupby().mean()` sea el mismo con o sin el `.notna()` extra. Solo importa si se necesita conservar esas filas de `NaN` en el DataFrame para otro propósito antes de agrupar.
+
+**Contexto real:** Práctica personal — variante de exclusión del patrón `.isin()` + máscara (ver [[#isin-where]]), explorando el comportamiento de `NaN` bajo negación booleana.
 
 ---
 
