@@ -279,4 +279,5 @@ df.pivot_table(
 - **Índice Maestro:** [[Indice_Maestro]]
 - **Herramienta completa:** [[Pandas]]
 - **Operación relacionada (window functions SQL):** [[Funnel_y_Cohortes_S12#cohortes-base]]
+- **Tabla rápida de equivalencias SQL ↔ Pandas (todas las operaciones, no solo agg/transform):** [[SQL_vs_Python_Traductor]]
 - **Práctica externa:** Kaggle — Superstore Sales Dataset, previo a ejercicios de window functions en DataLemur/StrataScratch.

@@ -58,16 +58,8 @@ Nota de referencia rápida: mismo concepto, distinta sintaxis. Pensada para cuan
 | Ranking dentro de cada grupo | `RANK() OVER (PARTITION BY grupo ORDER BY col DESC)` | `df.groupby('grupo')['col'].rank(ascending=False)` |
 | Número de fila secuencial por grupo | `ROW_NUMBER() OVER (PARTITION BY grupo ORDER BY col)` | `df.groupby('grupo').cumcount() + 1` |
 
-### La diferencia real entre `.agg()` y `.transform()`
-
-| | `.agg()` / `GROUP BY` normal | `.transform()` / `OVER(...)` |
-|---|---|---|
-| ¿Colapsa filas? | Sí — una fila por grupo | No — mismo número de filas que el original |
-| ¿Cuándo usarlo? | Cuando solo necesitas el resumen (ej. "total por categoría") | Cuando necesitas comparar cada fila individual contra el agregado de su grupo, en la misma fila |
-| Ejemplo | `df.groupby('cat')['x'].sum()` → 4 filas si hay 4 categorías | `df.groupby('cat')['x'].transform('sum')` → mismas filas que el original, valor repetido por grupo |
-
-> [!IMPORTANT] Regla práctica
-> Usa función de ventana (`OVER`/`transform`) cuando el siguiente paso de tu análisis necesita **el detalle de cada fila Y el agregado de su grupo al mismo tiempo** (ej. calcular cuánto se desvía cada fila del promedio de su grupo). Si solo necesitas el resumen final, `GROUP BY`/`.agg()` normal es más simple y eficiente.
+> [!IMPORTANT] Diferencia `.agg()` vs `.transform()` — desarrollo completo en otra nota
+> `.agg()` colapsa filas (una por grupo), `.transform()` no colapsa nada (mismo número de filas, valor del grupo repetido en cada una) — igual que `GROUP BY` normal vs `OVER(...)` en SQL. Ver la explicación completa, con ejemplos de lambda, `.transform('rank')` para top-N por grupo, y más casos prácticos, en [[Groupby_Agg_Transform#agg-vs-transform]].
 
 ---
 
@@ -144,7 +136,7 @@ cohortes = eventos.groupby(['mes_cohorte', 'numero_periodo'])['usuario_id'].nuni
 
 | Confusión típica | Aclaración |
 |---|---|
-| "`OVER()` es `.transform()` y `PARTITION BY` es `.agg()`" | Incorrecto — **ambos son `.transform()`**. La diferencia es si hay un `.groupby()` antes o no. `.agg()` es lo que colapsa filas, equivalente a un `GROUP BY` normal sin `OVER`. |
+| "`OVER()` es `.transform()` y `PARTITION BY` es `.agg()`" | Incorrecto — **ambos son `.transform()`**. La diferencia es si hay un `.groupby()` antes o no. `.agg()` es lo que colapsa filas, equivalente a un `GROUP BY` normal sin `OVER`. Desarrollo completo: [[Groupby_Agg_Transform#agg-vs-transform]]. |
 | "Media y mediana son intercambiables para imputar nulos" | La mediana es más robusta a outliers (no se deja "jalar" por valores extremos); la media solo es segura si la distribución es simétrica. Ver [[Analisis_Estadistico]]. |
 | "`RELATED()` en DAX es como un `JOIN`" | Se parece en el resultado, pero técnicamente `RELATED()` necesita **contexto de fila** para funcionar — por eso no sirve suelto dentro de `SUM()`, sí dentro de una columna calculada o dentro de `SUMX()`. |
 | "Un CTE se ejecuta aparte, como una tabla temporal guardada" | No — un CTE solo existe durante esa consulta específica, se recalcula cada vez, no se guarda en la base de datos. |
@@ -155,5 +147,6 @@ cohortes = eventos.groupby(['mes_cohorte', 'numero_periodo'])['usuario_id'].nuni
 
 - **Índice Maestro:** [[Indice_Maestro]]
 - **Herramientas relacionadas:** [[SQL]] | [[Pandas]] | [[Numpy]]
+- **Desarrollo completo de `.agg()` vs `.transform()`:** [[Groupby_Agg_Transform#agg-vs-transform]]
 - **Caso aplicado de cohortes:** [[Funnel_y_Cohortes_S12#cohortes-base]]
 - **DAX (traductor pendiente):** cuando se consolide el repaso de DAX, considerar sección "SQL vs DAX" en esta misma nota o nota aparte — `RELATED()` ≈ `JOIN`, `CALCULATE()` ≈ `WHERE` dinámico, `SUMX()` ≈ agregación con cruce de tablas.
