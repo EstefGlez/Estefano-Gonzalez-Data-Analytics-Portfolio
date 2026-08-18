@@ -344,6 +344,7 @@ WHERE cuantos = (SELECT MAX(cuantos) FROM primero);
 
 - **Índice Maestro:** [[Indice_Maestro]]
 - **Herramienta base:** [[SQL]]
+- **Por qué el orden de ejecución explica el patrón WHERE+window function:** [[Jerarquia_SQL#reglas-explicadas]]
 - **Traductor SQL ↔ Pandas ↔ DAX:** [[SQL_vs_Python_vs_DAX]]
 - **Patrón de window functions aplicado a cohortes:** [[Funnel_y_Cohortes_S12#cohortes-base]]
 - **Patrón de conteo condicional aplicado a funnels:** [[Funnel_y_Cohortes_S12#cohortes-sql]]
