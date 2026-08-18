@@ -29,6 +29,8 @@ Nota de referencia rápida: mismo concepto, distinta sintaxis. Pensada para cuan
 |---|---|---|
 | Seleccionar columnas | `SELECT col1, col2 FROM tabla` | `df[['col1', 'col2']]` |
 | Filtrar filas | `WHERE condicion` | `df[df['col'] > valor]` |
+| Filtrar grupos ya agregados | `GROUP BY col HAVING COUNT(*) > N` | `.groupby('col').filter(lambda g: len(g) > N)` |
+| Comparar contra nulo | `WHERE col IS NULL` / `IS NOT NULL` | `df[df['col'].isna()]` / `df[df['col'].notna()]` |
 | Ordenar | `ORDER BY col DESC` | `df.sort_values('col', ascending=False)` |
 | Limitar filas | `LIMIT 10` | `df.head(10)` |
 | Quitar duplicados | `SELECT DISTINCT col` | `df['col'].unique()` / `df.drop_duplicates()` |
@@ -45,6 +47,12 @@ Nota de referencia rápida: mismo concepto, distinta sintaxis. Pensada para cuan
 
 > [!NOTE] CTE ≈ variable intermedia
 > Un `WITH cte AS (...)` en SQL es conceptualmente lo mismo que ir guardando resultados intermedios en variables de pandas paso a paso (`df1 = ...`, `df2 = ...`). Ambos existen para dividir un problema complejo en pasos legibles, no por eficiencia.
+
+> [!IMPORTANT] SQL es declarativo (orden fijo interno) — Pandas es imperativo (corre como lo escribes)
+> SQL tiene un orden de ejecución lógico fijo, distinto al orden en que lo escribes (`FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY`) — por eso existen reglas como "no puedes usar un alias del SELECT en el WHERE". Ver el desarrollo completo en [[Jerarquia_SQL]]. **Pandas no tiene ese problema**: se ejecuta línea por línea, exactamente en el orden que tú lo escribes — no hay "orden lógico interno" oculto. Por eso en pandas nunca te vas a topar con la restricción de "esta variable todavía no existe" — si ya la asignaste en una línea anterior, está disponible.
+
+> [!WARNING] La trampa de LEFT JOIN con filtro mal ubicado existe en ambos lenguajes
+> En SQL, filtrar la tabla derecha en `WHERE` en vez de en `ON` convierte un `LEFT JOIN` en `INNER JOIN` de facto (ver [[Jerarquia_SQL#otras-reglas]]). En pandas pasa lo mismo: hacer `pd.merge(df1, df2, how='left')` y luego filtrar con `.query()` o `df[condicion]` sobre una columna de `df2` **elimina las filas sin match** (que tienen `NaN` en esa columna), deshaciendo el propósito del `left`. Si necesitas conservar las filas sin match, filtra *antes* del merge, o usa `.loc` con una condición que explícitamente permita `NaN` (ej. `(df['col'] > 5) | (df['col'].isna())`).
 
 ---
 
@@ -202,6 +210,8 @@ Los tres calculan exactamente lo mismo: "el mínimo de esta columna, agrupado po
 - **Índice Maestro:** [[Indice_Maestro]]
 - **Herramientas relacionadas:** [[SQL]] | [[Pandas]] | [[Numpy]] | [[Power_BI]]
 - **Desarrollo completo de `.agg()` vs `.transform()`:** [[Groupby_Agg_Transform#agg-vs-transform]]
+- **Orden de ejecución de SQL (por qué WHERE ≠ HAVING, alias, etc.):** [[Jerarquia_SQL]]
+- **Práctica aplicada de estos patrones (DataLemur):** [[Practica_DataLemur]]
 - **Caso aplicado de cohortes (SQL/Pandas):** [[Funnel_y_Cohortes_S12#cohortes-base]]
 - **Caso aplicado de cohortes (DAX):** [[DAX_Modelado_PowerBI#cohortes]]
 - **DAX intermedio (SUMX, RELATED, DIVIDE):** [[DAX_Avanzado_S12]]
