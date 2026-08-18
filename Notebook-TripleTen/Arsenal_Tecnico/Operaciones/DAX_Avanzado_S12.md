@@ -192,5 +192,5 @@ Gasto total marketing = SUM(marketing_clean[gasto])
 - **Base de este patrón:** [[DAX_Modelado_PowerBI]]
 - **Visualizaciones relacionadas:** [[DAX_Visualizaciones_PowerBI]]
 - **Equivalente en Python:** [[KPIs_Financieros_Python]]
-- **Traductor SQL/Pandas ↔ DAX (SUMX, RELATED, DIVIDE):** [[SQL_vs_Python_Traductor#sql-vs-dax]]
+- **Traductor SQL/Pandas ↔ DAX (SUMX, RELATED, DIVIDE):** [[SQL_vs_Python_vs_DAX#sql-vs-dax]]
 - **Sprint de referencia:** S12 — Proyecto Final RappiPlus

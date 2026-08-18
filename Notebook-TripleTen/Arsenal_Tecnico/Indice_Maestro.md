@@ -46,7 +46,7 @@ Mapa central de todas las herramientas y operaciones del bootcamp. Punto de entr
 | 📐 DAX Avanzado (SUMX, RELATED) | S12 | [[DAX_Avanzado_S12]] |
 | 🔌 Python + SQL | S12 | [[Python_SQL]] |
 | 🌿 Git & GitHub | Todos | [[Git_GitHub]] |
-| 🔄 Traductor SQL ↔ Python | SQL, Pandas, NumPy | [[SQL_vs_Python_Traductor]] |
+| 🔄 Traductor SQL ↔ Python ↔ DAX | SQL, Pandas, NumPy, DAX | [[SQL_vs_Python_vs_DAX]] |
 
 ---
 
