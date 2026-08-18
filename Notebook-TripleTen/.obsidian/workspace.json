@@ -11,10 +11,10 @@
             "id": "39d6ccfb24dc8ee2",
             "type": "leaf",
             "state": {
-              "type": "empty",
+              "type": "graph",
               "state": {},
-              "icon": "lucide-file",
-              "title": "Nueva pestaña"
+              "icon": "lucide-git-fork",
+              "title": "Vista gráfica"
             }
           }
         ]
@@ -192,6 +192,7 @@
   },
   "active": "39d6ccfb24dc8ee2",
   "lastOpenFiles": [
+    "Arsenal_Tecnico/Operaciones/Joins_y_Combinacion.md",
     "Arsenal_Tecnico/Herramientas/Git_GitHub.md",
     "Arsenal_Tecnico/Operaciones/SQL_vs_Python_Traductor.md",
     "Arsenal_Tecnico/Operaciones/Groupby_Agg_Transform.md",
@@ -208,7 +209,6 @@
     "copilot/copilot-conversations/Consulta_sobre_proyecto_Kaggle@20260715_164555.md",
     "copilot/copilot-conversations/Cohortes_en_Pandas_y_SQL@20260725_010009.md",
     "copilot/copilot-conversations/Análisis_de_cohortes_Pandas_SQL@20260725_012148.md",
-    "Arsenal_Tecnico/Operaciones/Joins_y_Combinacion.md",
     "Arsenal_Tecnico/Herramientas/Sin confirmar 841520.crdownload",
     "Arsenal_Tecnico/Operaciones/Sin confirmar 4840.crdownload",
     "Arsenal_Tecnico/Operaciones/SQL_Financiero_y_Metricas.md",

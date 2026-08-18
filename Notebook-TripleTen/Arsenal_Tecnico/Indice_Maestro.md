@@ -20,6 +20,7 @@ Mapa central de todas las herramientas y operaciones del bootcamp. Punto de entr
 | 📈 Agregación y Reportes | Sheets (QUERY), SQL, Pandas | [[Agregacion_y_Reportes]] |
 | 🧮 Groupby — Agg, Transform, Lambda, Crosstab | Pandas | [[Groupby_Agg_Transform]] |
 | 💰 SQL — Métricas Financieras, Embudos y Retención | SQL | [[SQL_Financiero_y_Metricas]] |
+| 🍋 SQL — Práctica de Entrevista (DataLemur) | SQL | [[Practica_DataLemur]] |
 | 🧪 Análisis Estadístico y Pruebas de Hipótesis | Pandas, SciPy | [[Analisis_Estadistico]] |
 | 📉 Visualización de Datos | Matplotlib, Seaborn | [[Visualizacion]] |
 | 🛒 Modelado Analítico en Sheets (S2 Walmart) | Google Sheets | [[Modelado_Analitico_Sheets]] |
