@@ -272,4 +272,5 @@ Power Query está antes en la cadena — nunca verá las columnas calculadas de 
 - **Herramienta:** [[Power_BI]]
 - **Concepto base:** [[Modelado_Star_Schema]]
 - **Visualizaciones avanzadas:** [[DAX_Visualizaciones_PowerBI]]
+- **Traductor SQL/Pandas ↔ DAX (ALLEXCEPT ≈ PARTITION BY):** [[SQL_vs_Python_Traductor#sql-vs-dax]]
 - **Sprint de referencia:** S11 — Ventas de propiedades inmobiliarias (Grupo Andes)

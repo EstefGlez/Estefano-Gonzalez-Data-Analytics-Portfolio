@@ -1,10 +1,10 @@
 ---
-tags: [herramienta, sql, python, pandas, numpy, traductor, indice]
+tags: [herramienta, sql, python, pandas, numpy, dax, powerbi, traductor, indice]
 tipo: nota-traductor
-herramientas: [sql, python, pandas, numpy]
+herramientas: [sql, python, pandas, numpy, dax]
 ---
 
-# 🔄 SQL vs Python — Traductor de Conceptos
+# 🔄 SQL vs Python vs DAX — Traductor de Conceptos
 
 Nota de referencia rápida: mismo concepto, distinta sintaxis. Pensada para cuando ya entiendes la lógica pero se te cruza el "¿cómo era esto en el otro lenguaje?". Organizada por librería — cada sección es independiente, consulta solo la que necesites.
 
@@ -19,6 +19,7 @@ Nota de referencia rápida: mismo concepto, distinta sintaxis. Pensada para cuan
 | SQL vs Pandas — Cohortes (caso aplicado) | [[#sql-vs-pandas-cohortes]] |
 | SQL vs NumPy — Operaciones numéricas | [[#sql-vs-numpy]] |
 | Conceptos que se confunden seguido | [[#confusiones-comunes]] |
+| SQL vs DAX — Traducción de conceptos | [[#sql-vs-dax]] |
 
 ---
 
@@ -143,10 +144,66 @@ cohortes = eventos.groupby(['mes_cohorte', 'numero_periodo'])['usuario_id'].nuni
 
 ---
 
+## 🧊 SQL vs DAX — Traducción de Conceptos {#sql-vs-dax}
+
+**Diferencia de fondo antes de la tabla:** SQL y Pandas piensan en términos de **agrupar/particionar filas**. DAX piensa en términos de **contexto de fila y contexto de filtro** — no agrupa, filtra y aísla. El resultado final suele ser equivalente, pero el mecanismo mental es distinto. Ver [[#contexto-dax]] más abajo para el desarrollo de esa idea.
+
+| Qué hace | SQL | DAX |
+|---|---|---|
+| Traer un valor de una tabla relacionada | `JOIN` | `RELATED(tabla[columna])` — requiere contexto de fila, funciona en columnas calculadas o dentro de `SUMX`, no suelto en un `SUM()` |
+| Calcular algo fila por fila, cruzando tablas, y sumar | No aplica directo (el `JOIN` ya lo resuelve antes de agregar) | `SUMX(tabla, expresión_por_fila)` |
+| Sumar una columna que ya existe, sin cruces | `SUM(columna)` | `SUM(tabla[columna])` |
+| Filtro condicional dentro de una agregación | `WHERE` (antes de agregar) o `CASE WHEN` dentro de `SUM` | `CALCULATE(medida, filtro)` — el filtro se aplica de forma dinámica, no estática |
+| Agrupar/particionar sin colapsar filas | `PARTITION BY columna` | `ALLEXCEPT(tabla, tabla[columna])` dentro de un `CALCULATE` — ver [[#contexto-dax]] |
+| Evitar división entre cero | `NULLIF(denominador, 0)` | `DIVIDE(numerador, denominador, [valor_alternativo])` |
+| Contar valores únicos | `COUNT(DISTINCT columna)` | `DISTINCTCOUNT(tabla[columna])` |
+| Referenciar un cálculo ya definido | Repetir el CTE/subquery, o usar su alias si el motor lo permite | `[NombreMedida]` — sin nombre de tabla, a diferencia de las columnas (`Tabla[Columna]`) |
+
+> [!IMPORTANT] Columnas vs Medidas — no tienen equivalente 1 a 1 en SQL
+> SQL no distingue "columna calculada" de "medida" — todo es una expresión dentro de la consulta. En DAX sí importa mucho la diferencia: una **columna calculada** se computa una vez por fila y se guarda físicamente en el modelo (como una columna más de la tabla); una **medida** se recalcula dinámicamente según el contexto de filtro del reporte (nunca se guarda con un valor fijo). Ver [[DAX_Modelado_PowerBI]] para el desarrollo completo.
+
+### 🧠 Contexto de fila / contexto de filtro (la pieza que no existe en SQL) {#contexto-dax}
+
+Esto no tiene equivalente directo en SQL, así que merece explicación aparte en vez de una fila de tabla:
+
+- Por default, una columna calculada en DAX está "aislada" a su propia fila — como si cada fila tuviera un filtro invisible que solo la deja ver a ella misma.
+- `ALLEXCEPT(tabla, tabla[columna])` amplía esa vista: dice "deja de estar aislado a una sola fila, ahora puedes ver todas las filas de la tabla otra vez — pero conserva el filtro de esta columna en particular" (ej. mismo `id_cliente`).
+- Traducido a pandas: el estado por default es como `df.groupby(df.index)['col'].transform(...)` (cada fila es su propio grupo, inútil). `ALLEXCEPT` es como cambiar la llave de ese `groupby` de "el índice de cada fila" a la columna real que te interesa (`df.groupby('id_cliente')['col'].transform(...)`) — **nunca deja de ser un `.transform()`**, solo cambia la llave de agrupación.
+- `CALCULATE()` es lo que "ejecuta" ese cambio de contexto — sin él, modificadores como `ALLEXCEPT` o `ALL` no pueden correr por sí solos.
+
+**Ejemplo aplicado — mismo problema (mes de cohorte por cliente), 3 lenguajes:**
+
+```sql
+-- SQL
+MIN(date_trunc('month', fecha)) OVER (PARTITION BY usuario_id)
+```
+```python
+# Pandas
+df.groupby('usuario_id')['mes_actividad'].transform('min')
+```
+```dax
+// DAX
+Primera compra por cliente =
+CALCULATE(
+    MIN(hecho_ventas[fecha_venta]),
+    ALLEXCEPT(hecho_ventas, hecho_ventas[id_cliente])
+)
+```
+
+Los tres calculan exactamente lo mismo: "el mínimo de esta columna, agrupado por cliente, sin colapsar filas" — solo cambia el mecanismo (particionar, agrupar+transformar, o filtrar+aislar).
+
+> [!NOTE] Ver el caso completo de cohortes en DAX
+> Ver [[DAX_Modelado_PowerBI#cohortes]] para la construcción completa de la matriz de cohortes en Power BI (incluye `FORMAT` para las etiquetas de mes y la configuración del visual tipo Matriz).
+
+---
+
 ## 🔗 Conexiones Estratégicas
 
 - **Índice Maestro:** [[Indice_Maestro]]
-- **Herramientas relacionadas:** [[SQL]] | [[Pandas]] | [[Numpy]]
+- **Herramientas relacionadas:** [[SQL]] | [[Pandas]] | [[Numpy]] | [[Power_BI]]
 - **Desarrollo completo de `.agg()` vs `.transform()`:** [[Groupby_Agg_Transform#agg-vs-transform]]
-- **Caso aplicado de cohortes:** [[Funnel_y_Cohortes_S12#cohortes-base]]
-- **DAX (traductor pendiente):** cuando se consolide el repaso de DAX, considerar sección "SQL vs DAX" en esta misma nota o nota aparte — `RELATED()` ≈ `JOIN`, `CALCULATE()` ≈ `WHERE` dinámico, `SUMX()` ≈ agregación con cruce de tablas.
+- **Caso aplicado de cohortes (SQL/Pandas):** [[Funnel_y_Cohortes_S12#cohortes-base]]
+- **Caso aplicado de cohortes (DAX):** [[DAX_Modelado_PowerBI#cohortes]]
+- **DAX intermedio (SUMX, RELATED, DIVIDE):** [[DAX_Avanzado_S12]]
+- **DAX modelado y CALCULATE + ALLEXCEPT:** [[DAX_Modelado_PowerBI#allexcept]]
+
